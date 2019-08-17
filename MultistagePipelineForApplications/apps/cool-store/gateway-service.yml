@@ -18,8 +18,8 @@ acls:
   devgroup: Developers
 
 #images to use for runtime
-runtime_image: "wildfly:latest"
-runtime_image_project: baseimages
+runtime_image: "jboss-eap72-openshift:latest"
+runtime_image_project: openshift
 
 #template to used
 deploy_test:

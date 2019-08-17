@@ -18,8 +18,8 @@ acls:
   devgroup: Developers
 
 #images to use for runtime
-runtime_image: "springboot:latest"
-runtime_image_project: baseimages
+runtime_image: "redhat-openjdk18-openshift:1.5"
+runtime_image_project: openshift
 
 #template to used
 deploy_test:

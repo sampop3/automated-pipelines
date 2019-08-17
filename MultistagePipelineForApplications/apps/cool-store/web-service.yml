@@ -19,7 +19,7 @@ acls:
 
 #images to use for runtime
 runtime_image: "nodejs:latest"
-runtime_image_project: baseimages
+runtime_image_project: openshift
 
 #template to used
 deploy_test:
