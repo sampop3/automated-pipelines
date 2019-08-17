@@ -1,0 +1,29 @@
+---
+# App details 
+app_name: "web-ui"
+scm_url: http://gitea-infra-tools.apps.cluster-390e.390e.sandbox389.opentlc.com/demouser01/web-service.git
+scm_branch: master
+scm_secret_name: gitea
+jenkins_file_contextdir: "." 
+
+#no of environments to be created for app
+projects:
+  ci_cd_namespace: coolstore-cicd
+  dev_namespace:  coolstore-dev
+  test_namespace: coolstore-test
+  prod_namespace: coolstore-prod
+
+#Development team users group
+acls:
+  devgroup: Developers
+
+#images to use for runtime
+runtime_image: "nodejs:latest"
+runtime_image_project: baseimages
+
+#template to used
+deploy_test:
+  template: cool-store/web.yaml
+
+deploy_prod:
+  template: cool-store/web.yaml

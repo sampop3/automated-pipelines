@@ -1,0 +1,63 @@
+#jinja2: trim_blocks:False
+---
+
+build:
+  NAME: '{{ app_name }}'
+  RUNTIME_IMAGE_STREAM_NAME_TAG: '{{ runtime_image }}'
+  RUNTIME_IMAGE_STREAM_NAMESPACE: '{{ runtime_image_project }}'
+
+configmaps_default:
+  APP_NAME: "{{ app_name }}"
+
+promote_default:
+  BUILD_NAMESPACE: "{{ projects.dev_namespace }}"
+  APP_NAME: "{{ app_name }}"
+
+{# Merge the two dicts such that the generated var will have all the parameters need by deploy template  #}
+
+{%- for key, value in projects.iteritems()|sort()  %}
+{%- if key not in ('ci_cd_namespace', 'dev_namespace') %}
+promote2{{ key |replace("_namespace", "") }}: |
+  {% raw %}{%- if deploy_test.env is defined and {% endraw %} deploy_{{ key |replace("_namespace", "") }}.env {% raw %} is iterable -%}
+  {{ promote_default | combine ({% endraw %}deploy_{{ key |replace("_namespace", "") }}.env{% raw %}, recursive=True) }}
+  {%- else -%}
+  {{ promote_default }}
+  {%- endif -%}
+  {% endraw %}
+{% endif %}
+{% endfor %}
+
+openshift_cluster_content:
+- object: app-components
+  content:
+    # create a binary build config in the devproject so that it can consume the artifacts created in 
+    # by the jenkins file step and create a container image out of it
+    - name: app-build
+      template: {% raw %} "{{ inventory_dir }}/../templates/app/binaryBuildfromImagestreams.yaml" {% endraw %}
+      params_from_vars: {% raw %}"{{ build }}"{% endraw %}
+      namespace: "{{ projects.dev_namespace }}"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+
+{% for key, value in projects.iteritems()|sort()  %}
+{%- if key not in ('ci_cd_namespace', 'dev_namespace') %}
+    # Confimaps in the {{value}} space that for resolvconf and jwt tokens
+    - name: deploy-configmaps-on-{{value}}
+      template: {% raw %}"{{ inventory_dir }}/../templates/configmaps/{% endraw %}{{ key |replace("_namespace", "") }}.yaml"
+      params_from_vars: {% raw %} "{{ configmaps_default }}"{% endraw %}
+      namespace: "{{ value }}"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+
+    # Deployconfig in the  {{value}} space that rolls out image from dev namespace.
+    - name: deploy-dc-on-{{value}}
+      template: {% raw %}"{{ inventory_dir }}/../templates/app/{{ deploy_{% endraw %}{{ key |replace("_namespace", "") }}{% raw %}.template }}{% endraw %}"
+      params_from_vars: {{ '"{{' }}promote2{{ key |replace("_namespace", "") }}{{ '}}"' }}
+      namespace: "{{ value }}"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+{% endif %}
+{% endfor %}

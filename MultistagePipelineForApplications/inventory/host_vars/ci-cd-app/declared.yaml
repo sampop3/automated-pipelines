@@ -1,0 +1,14 @@
+---
+ansible_host: localhost
+ansible_connection: local
+
+#Nexus details
+nexus_secret:
+  SECRET_NAME: "nexus-secret"
+  USERNAME: "{{ nexus.user }}"
+  PASSWORD: "{{ nexus.password }}"
+
+#Jenkins Master
+jenkins_master:
+  JENKINS_IMAGE: "jenkins:2"
+  JENKINS_IMAGE_PROJECT: openshift

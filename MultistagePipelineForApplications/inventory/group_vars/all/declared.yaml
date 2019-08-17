@@ -1,0 +1,30 @@
+---
+ansible_connection: local
+
+openshift_templates_raw: "https://raw.githubusercontent.com/rht-labs/openshift-templates"
+openshift_templates_raw_version_tag: "v1.4.3"
+
+#nexus details
+nexus:
+  server: nexus-infra-tools.apps.cluster-97ae.97ae.sandbox392.opentlc.com
+  user: admin
+  password: admin123
+
+admin_role_binding_group:
+  GROUP: "Admins"
+  ROLE: "admin"
+
+edit_role_binding_group:
+  GROUP: "{{ acls.devgroup }}"
+  ROLE: "{{ role | default('edit') }}"
+
+ci_cd:
+  NAMESPACE: "{{ projects.ci_cd_namespace }}"
+  NAMESPACE_DISPLAY_NAME: "{{ projects.ci_cd_namespace }}" 
+  DEFAULT_MEM_LIMIT: "2Gi" 
+  DEFAULT_MEM_REQUEST: "1Gi"
+
+jenkinslaves:
+- nodejs8-agent
+- maven-agent
+- skopeo-agent

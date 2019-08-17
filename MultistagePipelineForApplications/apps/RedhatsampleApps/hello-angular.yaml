@@ -1,0 +1,28 @@
+---
+# App details 
+app_name: "hello-angular"
+scm_url: 
+scm_branch: master
+scm_secret_name: gitea
+jenkins_file_contextdir: "." 
+
+#no of environments to be created for app
+ci_cd_namespace: helloworld-cicd
+dev_namespace: helloworld-dev
+test_namespace: helloworld-test
+
+#Development team users group
+acls:
+  devgroup: Nystartsjobb
+
+
+#images to use for runtime
+runtime_image: "nodejs:latest"
+runtime_image_project: baseimages
+
+#template to used
+deploy_test:
+  template: generic/angular.yaml
+
+deploy_prod:
+  template: generic/angular.yaml

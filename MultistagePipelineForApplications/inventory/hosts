@@ -1,0 +1,9 @@
+
+[bootstrap]
+projects-policies
+
+[ci-cd]
+ci-cd-app
+
+[app]
+app-build-deploy

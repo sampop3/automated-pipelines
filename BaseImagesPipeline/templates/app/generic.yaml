@@ -1,0 +1,82 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ${APP_NAME}-template
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}
+
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APP_NAME}:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: "${DOCKERFILE_CONTEXT_DIR}"
+      git:
+        uri: ${GIT_URL}
+        ref: ${GIT_BRANCH}
+      sourceSecret:
+        name: ${GIT_SECRET}
+      type: Git
+    strategy:
+      dockerStrategy:
+        dockerfilePath: ${DOCKER_FILE_PATH}
+      type: Docker
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - type: ConfigChange
+    - github:
+        secret: nf3FYwy_1tcWoyjxW3ii
+      type: GitHub
+    - generic:
+        secret: b8jlnKnCt0x5c60qFhBG
+      type: Generic
+
+parameters:
+- description: BUILD_NAMESPACE
+  displayName: BUILD_NAMESPACE
+  name: BUILD_NAMESPACE
+  required: true
+- description: GIT_URL
+  displayName: GIT_BRANCH
+  name: GIT_URL
+  required: true
+- description: GIT_BRANCH
+  displayName: GIT_BRANCH
+  name: GIT_BRANCH
+  required: true
+- description: GIT_SECRET
+  displayName: GIT_SECRET
+  name: GIT_SECRET
+  required: true
+- description: APP_NAME
+  displayName: APP_NAME
+  name: APP_NAME
+  required: true
+- decription: Docker file conetxt dir
+  dispayName: Dockerfile context directory
+  name: DOCKERFILE_CONTEXT_DIR
+  required: true
+  value: "."
+- decription: Docker file path to be used
+  dispayName: Dockerfilepath
+  name: DOCKER_FILE_PATH
+  required: true
+  value: Dockerfile

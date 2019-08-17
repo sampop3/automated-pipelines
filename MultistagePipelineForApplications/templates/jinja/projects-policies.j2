@@ -1,0 +1,104 @@
+#jinja2: trim_blocks:False
+---
+ansible_connection: local
+
+jenkins:
+  ROLE: admin
+  PIPELINES_NAMESPACE: {% raw %}"{{ projects.ci_cd_namespace }}"{% endraw %}
+  DEPLOYER_USER: jenkins
+
+image_puller:
+  ROLE: "system:image-puller"
+  PIPELINES_NAMESPACE: {% raw %}"{{ projects.ci_cd_namespace }}"{% endraw %}
+  DEPLOYER_USER: default
+
+{% for key, value in projects.iteritems()|sort()  %}
+image_pull_role_binding_{{ key |replace("_namespace", "") }}ns:
+  ROLE: "system:image-puller"
+  GROUP: "system:serviceaccounts:{{ value }}"
+
+{% endfor %}
+
+openshift_cluster_content:
+- object: project
+  content:
+{% for key, value in projects.iteritems()|sort()  %}
+  - name: create {{ value }}
+    template: {% raw %} "{{ playbook_dir }}/templates/project/project-request-template.yaml" {% endraw %}
+    params_from_vars: {{ '"{{' }} {{ key |replace("_namespace", "") }} {{ '}}"' }}
+    action: apply
+    ignore_unknown_parameters: false
+    tags:
+    - projectrequests
+    - projectrequests-{{ key |replace("_namespace", "") }}
+
+{% endfor %}
+
+- object: group-role-binding
+  content:
+{% for key, value in projects.iteritems()|sort()  %}
+  - name: "edit-acl-in-{{ value }}"
+    template: {% raw %}"{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/group-rolebinding-template.yml" {% endraw %}
+    params_from_vars: {% raw %} "{{ edit_role_binding_group }}" {% endraw %}
+    namespace: "{{ value }}"
+    tags:
+    - "{{ value }}"
+    - rolebinding-group
+    - "rolebinding-group-{{ value }}"
+  - name: "admin-acl-in{{ value }}"
+    template: {% raw %} "{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/group-rolebinding-template.yml" {% endraw %}
+    params_from_vars: {% raw %} "{{ admin_role_binding_group }}" {% endraw %}
+    namespace: "{{ value }}"
+    tags:
+    - "{{ value }}"
+    - rolebinding-group
+    - "rolebinding-group-{{ value }}"
+
+{% endfor %}
+
+# Bindings to allow Jenkins operate outside of the project its project
+{% for key, value in projects.iteritems()|sort()  %}
+{%- if key not in ('ci_cd_namespace') %}
+- object: service-user-role-bind
+  content:
+  - name: "jenkins-{{ value }}-role-binding"
+    template: {% raw %} "{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/generic-service-user-bind.yml" {% endraw %}
+    params_from_vars:  {% raw %}"{{ jenkins }}" {% endraw %}
+    namespace: "{{ value }}"
+    tags:
+    - "{{ value }}"
+    - rolebinding-jenkins
+    - "rolebinding-jenkins-{{ value }}"
+{% endif %}
+{% endfor %}
+
+{% raw %}
+# Add image puller role to be able to get images stored in other namespace
+- object: image-puller-role-binding
+  content:
+  - name: "image-puller-{{ projects.dev_namespace }}-role-binding"
+    template: "{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/generic-service-user-bind.yml"
+    params_from_vars: "{{ image_puller }}"
+    namespace: "{{ projects.dev_namespace }}"
+    tags:
+    - "{{ projects.dev_namespace }}"
+    - rolebinding-image-puller
+    - "rolebinding-image-puller-{{ projects.dev_namespace }}"
+{% endraw %}
+
+
+#to be able to pull images from dev project by service accounts from other projects in pipeline
+- object: image-puller-role-binding
+  content:
+{% for key, value in projects.iteritems()|sort()  %}
+{%- if key not in ('ci_cd_namespace', 'dev_namespace') %}
+  - name: "serviceaccount-{{ value }}-role-binding"
+    template: {% raw %}"{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/group-rolebinding-template.yml"{% endraw %}
+    params_from_vars: {{ '"{{' }}image_pull_role_binding_{{ key |replace("_namespace", "") }}ns{{ '}}"' }}
+    namespace: "{{ projects.dev_namespace }}"
+    tags:
+    - "{{ value }}"
+    - rolebinding-image-puller
+    - "rolebinding-image-puller-{{ value }}"
+{% endif %}
+{% endfor %}

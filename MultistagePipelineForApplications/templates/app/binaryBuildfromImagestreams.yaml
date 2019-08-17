@@ -1,0 +1,69 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: "${NAME}-build"
+  annotations:
+    openshift.io/display-name: binary App Build Template
+    description: binary binary build config to create an image with your app baked in.
+    iconClass: fa-cube
+    tags: binary
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: "${NAME}"
+    name: "${NAME}"
+  spec:
+    nodeSelector:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}:${BUILD_TAG}"
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      binary: {}
+      type: Binary
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: ${RUNTIME_IMAGE_STREAM_NAME_TAG}
+          namespace: ${RUNTIME_IMAGE_STREAM_NAMESPACE}
+      type: Source
+
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: "${NAME}"
+    name: "${NAME}"
+  spec: {}
+
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all objects and the resulting imagestream.
+  required: true
+  value: binary-app
+- name: BUILD_TAG
+  displayName: Build Tag for Docker image
+  description: The tag to apply to the Docker image being built.
+  required: true
+  value: latest
+
+- name: RUNTIME_IMAGE_STREAM_NAME_TAG
+  displayName: Name of the image stream to be used as runtime
+  description: Name of the image stream to be used as runtime.
+  required: true
+
+- name: RUNTIME_IMAGE_STREAM_NAMESPACE
+  displayName: Project that hosts the base images
+  description: Project that hosts the base images.
+  required: true
+  value: baseimages
+  
+labels:
+  template: "${NAME}-build-template"

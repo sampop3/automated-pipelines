@@ -1,0 +1,63 @@
+---
+ansible_connection: local
+
+
+jenkins:
+  ROLE: admin
+  PIPELINES_NAMESPACE: "{{ ci_cd_namespace }}"
+  DEPLOYER_USER: jenkins
+
+image_puller:
+  ROLE: "system:image-puller"
+  PIPELINES_NAMESPACE: "{{ ci_cd_namespace }}"
+  DEPLOYER_USER: default
+
+
+openshift_cluster_content:
+- object: project
+  content:
+  - name: cicd
+    template: "{{ inventory_dir }}/../templates/project/project-request-template.yaml"
+    params: "{{ inventory_dir }}/../params/projectrequests/project"
+    params_from_vars: "{{ ci_cd }}"
+    action: create
+    ignore_unknown_parameters: false
+    tags:
+    - projectrequests
+    - projectrequests-dev
+
+  - name: dev
+    template: "{{ inventory_dir }}/../templates/project/project-request-template.yaml"
+    params: "{{ inventory_dir }}/../params/projectrequests/project"
+    params_from_vars: "{{ dev }}"
+    action: create
+    ignore_unknown_parameters: false
+    tags:
+    - projectrequests
+    - projectrequests-dev
+
+# Bindings to allow Jenkins operate outside of the project its project
+- object: service-user-role-bind
+  content:
+  - name: "jenkins-{{ dev_namespace }}-role-binding"
+    template: "{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/generic-service-user-bind.yml"
+    params_from_vars: "{{ jenkins }}"
+    namespace: "{{ dev_namespace }}"
+    tags:
+    - "{{ dev_namespace }}"
+    - rolebinding-jenkins
+    - "rolebinding-jenkins-{{ dev_namespace }}"
+
+
+# Add image puller role to be able to get images stored in other namespace
+- object: image-puller-role-binding
+  content:
+  - name: "image-puller-{{ dev_namespace }}-role-binding"
+    template: "{{ openshift_templates_raw }}/{{ openshift_templates_raw_version_tag }}/role-bindings/generic-service-user-bind.yml"
+    params_from_vars: "{{ image_puller }}"
+    namespace: "{{ dev_namespace }}"
+    tags:
+    - "{{ dev_namespace }}"
+    - rolebinding-image-puller
+    - "rolebinding-image-puller-{{ dev_namespace }}"
+

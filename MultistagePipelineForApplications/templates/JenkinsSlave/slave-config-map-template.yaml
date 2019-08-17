@@ -1,0 +1,85 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: jenkins-slave-template
+objects:
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: ${AGENT_NAME}
+    labels:
+      role: jenkins-slave
+  data:
+    ${AGENT_NAME}: |-
+      <org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+        <inheritFrom></inheritFrom>
+        <name>${AGENT_NAME}</name>
+        <slaveConnectTimeout>100</slaveConnectTimeout>
+        <instanceCap>2147483647</instanceCap>
+        <idleMinutes>0</idleMinutes>
+        <label>${AGENT_NAME}</label>
+        <serviceAccount>jenkins</serviceAccount>
+        <nodeSelector></nodeSelector>
+        <volumes/>
+        <containers>
+          <org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+            <name>jnlp</name>
+            <image>${IMAGE}</image>
+            <privileged>false</privileged>
+            <alwaysPullImage>false</alwaysPullImage>
+            <workingDir>/tmp</workingDir>
+            <command></command>
+            <args>${computer.jnlpmac} ${computer.name}</args>
+            <ttyEnabled>false</ttyEnabled>
+            <resourceRequestCpu></resourceRequestCpu>
+            <resourceRequestMemory></resourceRequestMemory>
+            <resourceLimitCpu></resourceLimitCpu>
+            <resourceLimitMemory></resourceLimitMemory>
+            <envVars>
+            <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                  <key>NEXUS_URL</key>
+                  <value>http://${NEXUS_SERVER}</value>
+                </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                <org.csanchez.jenkins.plugins.kubernetes.model.SecretEnvVar>
+                  <key>NEXUS_USERNAME</key>
+                  <secretName>${NEXUS_SECRET_NAME}</secretName>
+                  <secretKey>username</secretKey>
+                </org.csanchez.jenkins.plugins.kubernetes.model.SecretEnvVar>
+                <org.csanchez.jenkins.plugins.kubernetes.model.SecretEnvVar>
+                  <key>NEXUS_PASSWORD</key>
+                  <secretName>${NEXUS_SECRET_NAME}</secretName>
+                  <secretKey>password</secretKey>
+                </org.csanchez.jenkins.plugins.kubernetes.model.SecretEnvVar>
+                <org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+                  <key>DOCKER_REGISTRY</key>
+                  <value>${DOCKER_REGISTRY}</value>
+                </org.csanchez.jenkins.plugins.kubernetes.ContainerEnvVar>
+              </envVars>
+          </org.csanchez.jenkins.plugins.kubernetes.ContainerTemplate>
+        </containers>
+        <envVars/>
+        <annotations/>
+        <imagePullSecrets/>
+        <nodeProperties/>
+      </org.csanchez.jenkins.plugins.kubernetes.PodTemplate>
+parameters:
+- name: AGENT_NAME
+  displayName: Jenkins agent name
+  description: The name assigned to this Jenkins agent (builder)
+  required: true
+- name: IMAGE
+  displayName: The image to be used by this agent
+  description: The location of image used by this Jenkins agent (builder)
+  required: true
+- name: NEXUS_SERVER
+  displayName: Nexus server to be used
+  description: Nexus server to be used for uploading artifacts
+- name: NEXUS_SECRET_NAME
+  displayName: Secret name use for talking to nexus server
+  description:  Secret name use for talking to nexus server
+- name: DOCKER_REGISTRY
+  displayName: DOCKER_REGISTRY
+  description: External docker registry to be used to push image
+
+  

@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: project-request
+objects:
+- apiVersion: v1
+  kind: LimitRange
+  metadata:
+    name: core-resource-limits
+  spec:
+    limits:
+    - max:
+        cpu: "2"
+        memory: 1Gi
+      min:
+        cpu: 200m
+        memory: 6Mi
+      type: Pod
+    - default:
+        cpu: 300m
+        memory: 200Mi
+      defaultRequest:
+        cpu: 200m
+        memory: 100Mi
+      max:
+        cpu: "2"
+        memory: 1Gi
+      maxLimitRequestRatio:
+        cpu: "10"
+      min:
+        cpu: 100m
+        memory: 4Mi
+      type: Container
+
+- apiVersion: v1
+  kind: ProjectRequest
+  metadata:
+    annotations:
+            #openshift.io/description: ${PROJECT_DESCRIPTION}
+      openshift.io/display-name: ${NAMESPACE_DISPLAY_NAME}
+      #openshift.io/requester: ${PROJECT_REQUESTING_USER}
+    name: ${NAMESPACE}
+    displayName: ${NAMESPACE_DISPLAY_NAME}
+
+- apiVersion: v1
+  groupNames:
+  - system:serviceaccounts:${NAMESPACE}
+  kind: RoleBinding
+  metadata:
+    name: system:image-pullers
+    namespace: ${NAMESPACE}
+  roleRef:
+    name: system:image-puller
+  subjects:
+  - kind: SystemGroup
+    name: system:serviceaccounts:${NAMESPACE}
+
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    name: system:image-builders
+    namespace: ${NAMESPACE}
+  roleRef:
+    name: system:image-builder
+  subjects:
+  - kind: ServiceAccount
+    name: builder
+  userNames:
+  - system:serviceaccount:${NAMESPACE}:builder
+ 
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    name: system:deployers
+    namespace: ${NAMESPACE}
+  roleRef:
+    name: system:deployer
+  subjects:
+  - kind: ServiceAccount
+    name: deployer
+  userNames:
+  - system:serviceaccount:${NAMESPACE}:deployer
+
+- apiVersion: v1
+  kind: RoleBinding
+  metadata:
+    name: admin
+    namespace: ${NAMESPACE}
+  roleRef:
+    name: admin
+  subjects:
+  - kind: User
+    name: ${PROJECT_ADMIN_USER}
+  userNames:
+  - ${PROJECT_ADMIN_USER}
+parameters:
+- name: NAMESPACE
+- name: NAMESPACE_DISPLAY_NAME
+- name: PROJECT_DESCRIPTION
+- name: PROJECT_ADMIN_USER
+- name: PROJECT_REQUESTING_USER

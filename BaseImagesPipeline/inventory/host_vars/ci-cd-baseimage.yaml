@@ -1,0 +1,35 @@
+ansible_host: localhost
+ansible_connection: local
+
+
+app_detail:
+  NAME: "{{ app_name }}"      
+  CI_CD_NAMESPACE: "{{ ci_cd_namespace }}"
+  DEV_NAMESPACE: "{{ dev_namespace }}"
+  JENKINSFILE_SOURCE_REPOSITORY_REF: "{{ scm_branch }}"
+  JENKINSFILE_SOURCE_REPOSITORY_URL: "{{ scm_url }}"
+  JENKINSFILE_SOURCE_SECRET: "{{ scm_secret_name }}"
+  JENKINSFILE_CONTEXT_DIR: "{{ jenkins_file_contextdir }}"
+  RUN_POLICY: Parallel
+
+openshift_cluster_content:
+- object: ci-for-app
+  content:
+  - name: ssh-private-key
+    template: "{{ inventory_dir }}/../templates/secret/secret-ssh-private-key-template.yaml"
+    params_from_vars:
+      SECRET_NAME: "{{ scm_secret_name }}"
+      SSH_PRIVATE_KEY: "{{ encrypted_gitea_key }}"
+    namespace: "{{ ci_cd_namespace }}"
+    tags:
+    - pipeline-ssh-private-key
+
+  
+  # roll out pipeline build config so that it also rolls out the jenkins master
+  - name: pipeline
+    template: "{{ inventory_dir }}/../templates/jenkinsPipeline/pipelinebc-template.yaml"
+    params_from_vars: "{{ app_detail }}"
+    namespace: "{{ ci_cd_namespace }}"
+    tags:
+    - ci
+

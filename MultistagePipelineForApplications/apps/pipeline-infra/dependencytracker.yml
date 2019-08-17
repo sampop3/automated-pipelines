@@ -1,0 +1,25 @@
+---
+# App details 
+app_name: "dependency-tracker"
+scm_url: 
+scm_branch: master
+scm_secret_name: gitea
+jenkins_file_contextdir: "dependancytracker/" 
+
+#no of environments to be created for app
+projects:
+  ci_cd_namespace: dependencytracker-cicd
+  dev_namespace:  dependencytracker-dev
+  test_namespace: dependencytracker-test
+
+#Development team users group
+acls:
+  devgroup: Developers
+
+#images to use for runtime
+runtime_image: "springboot:latest"
+runtime_image_project: baseimages
+
+#template to used
+deploy_test:
+  template: generic/springboot.yaml

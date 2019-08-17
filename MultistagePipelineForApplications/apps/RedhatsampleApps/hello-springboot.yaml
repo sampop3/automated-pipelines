@@ -1,0 +1,30 @@
+---
+# App details 
+app_name: "springboothello"
+scm_url: 
+scm_branch: master
+scm_secret_name: gitea
+jenkins_file_contextdir: "." 
+
+
+#no of environments to be created for app
+
+ci_cd_namespace: springboot-cicd
+dev_namespace: springboot-dev
+test_namespace: springboot-test
+
+#Development team users group
+acls:
+  devgroup: Developers
+
+#images to use for runtime      
+runtime_image: "springboot:latest"
+runtime_image_project: baseimages
+
+#template to used
+deploy_test:
+  template: generic/springboot.yaml
+
+deploy_prod:
+  template: generic/springboot.yaml
+

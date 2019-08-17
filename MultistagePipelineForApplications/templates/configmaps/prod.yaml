@@ -1,0 +1,25 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ${APP_NAME}-template
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: ${APP_NAME}
+      env: i1
+    name: resolvconf-map
+  data:
+    resolv.conf: |-
+      # Test2
+      nameserver 8.8.8.8
+      search svc.cluster.local cluster.local
+      options ndots:1
+      
+parameters:
+- description: APP_NAME
+  displayName: APP_NAME
+  name: APP_NAME
+  required: true

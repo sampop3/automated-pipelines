@@ -1,0 +1,23 @@
+---
+- name: Generate the variables need by ansible applier
+  hosts: localhost
+  tasks:
+    - name: Generate vars in groups vars folder
+      template:
+        src: templates/jinja/group_vars_all.j2
+        dest: "{{ lookup('env', 'PWD') }}/inventory/group_vars/all/vars-generated.yaml"
+
+    - name: Generate vars for creating relevant projects and policies
+      template:
+        src: templates/jinja/projects-policies.j2
+        dest: "{{ lookup('env', 'PWD') }}/inventory/host_vars/projects-policies/projects-policies-generated.yaml"
+
+    - name: Generate vars for jenkins used for running pipelines
+      template:
+        src: templates/jinja/ci-cd-app.j2
+        dest: "{{ lookup('env', 'PWD') }}/inventory/host_vars/ci-cd-app/generated.yaml"
+
+    - name: Generate vars for build configs and deploy configs for various environments in pipeline
+      template:
+        src: templates/jinja/app-build-deploy-configs.j2
+        dest: "{{ lookup('env', 'PWD') }}/inventory/host_vars/app-build-deploy/app-build-deploy-generated.yaml"

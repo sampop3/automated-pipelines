@@ -1,0 +1,10 @@
+#jinja2: trim_blocks:False
+---
+
+{%- for key, value in projects.iteritems()|sort()  %}
+{%- if key not in ('ci_cd_namespace') %}
+{{ key |replace("_namespace", "") }}:
+  NAMESPACE: "{{ value }}"
+  NAMESPACE_DISPLAY_NAME: "{{ value }}"
+{% endif %}
+{% endfor %}

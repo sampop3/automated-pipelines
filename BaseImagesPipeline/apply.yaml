@@ -1,0 +1,39 @@
+---
+- name: Create Projects and Policies
+  hosts: bootstrap
+  tasks:
+    - include_role:
+        name: openshift-applier/roles/openshift-applier
+
+- name: Create CI/CD pipeliene config for baseimages
+  hosts: ci-cd
+  tasks:
+    - include_vars: "{{ inventory_dir }}/../../encrypted-secrets.yml"
+      when: "encrypted_gitea_key is not defined"
+
+    - include_role:
+        name: openshift-applier/roles/openshift-applier
+      tags:
+        - openshift-applier
+
+- name: Create all the configuration needed by CI/CD jenkinsfile for app
+  hosts: app
+  tasks:
+    - include_vars: "{{ inventory_dir }}/../../encrypted-secrets.yml"
+      when: "encrypted_gitea_key is not defined"
+
+    - include_role:
+        name: openshift-applier/roles/openshift-applier
+      tags:
+        - openshift-applier
+
+- name: Deploy Jenkins master needed by CI/CD pipeline for baseimages
+  hosts: ci-cd-jenkins
+  tasks:
+    - include_vars: "{{ inventory_dir }}/../../encrypted-secrets.yml"
+      when: "encrypted_gitea_key is not defined"
+
+    - include_role:
+        name: openshift-applier/roles/openshift-applier
+      tags:
+        - openshift-applier
