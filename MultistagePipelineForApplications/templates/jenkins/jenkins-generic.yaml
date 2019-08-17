@@ -125,7 +125,7 @@ objects:
           - name: JNLP_SERVICE_NAME
             value: ${JNLP_SERVICE_NAME}
           - name: NEXUS_URL
-            value: "http://nexus-infra-tools.apps.cluster-97ae.97ae.sandbox392.opentlc.com"
+            value: "http://nexus-infra-tools.apps.cluster-390e.390e.sandbox389.opentlc.com"
           - name: NEXUS_USER
             value: "admin"
           - name: NEXUS_PASSOWRD
@@ -191,7 +191,7 @@ parameters:
   value: "jenkins:2"
   required: true
 - name: JENKINS_IMAGE_PROJECT
-  value: "baseimages"
+  value: "openshift"
   required: true
 - description: The name of the OpenShift Service exposed for the Jenkins container.
   displayName: Jenkins Service Name

@@ -6,7 +6,7 @@ scm_branch: master
 scm_secret_name: gitea
 jenkins_file_contextdir: "." 
 
-#no of environments to be created for app
+# no of environments to be created for app
 projects:
   ci_cd_namespace: coolstore-cicd
   dev_namespace:  coolstore-dev

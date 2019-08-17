@@ -6,7 +6,7 @@ openshift_templates_raw_version_tag: "v1.4.3"
 
 #nexus details
 nexus:
-  server: nexus-infra-tools.apps.cluster-97ae.97ae.sandbox392.opentlc.com
+  server: nexus-infra-tools.apps.cluster-390e.390e.sandbox389.opentlc.com
   user: admin
   password: admin123
 
@@ -25,6 +25,5 @@ ci_cd:
   DEFAULT_MEM_REQUEST: "1Gi"
 
 jenkinslaves:
-- nodejs8-agent
-- maven-agent
-- skopeo-agent
+- agent-nodejs
+- agent-maven
