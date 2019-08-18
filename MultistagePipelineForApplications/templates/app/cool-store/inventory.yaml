@@ -3,6 +3,7 @@ kind: Template
 metadata:
   creationTimestamp: null
   name: ${APP_NAME}-template
+objects:
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -334,6 +335,7 @@ metadata:
       deploymentConfig: datagrid
     sessionAffinity: None
     type: ClusterIP
+
 
 parameters:
 - description: BUILD_NAMESPACE
