@@ -9,7 +9,6 @@ objects:
   metadata:
     name: ${APP_NAME}
     labels:
-      application: coolstore
       app: coolstore
       component: ${APP_NAME}
   spec:
@@ -23,7 +22,7 @@ objects:
       metadata:
         labels:
           deploymentconfig: ${APP_NAME}
-          application: coolstore
+          app: coolstore
           component: ${APP_NAME}
         name: ${APP_NAME}
       spec:
@@ -126,7 +125,7 @@ objects:
   kind: Route
   metadata:
     labels:
-      application: coolstore
+      app: coolstore
       component: ${APP_NAME}
     name: ${APP_NAME}
   spec:
@@ -141,7 +140,6 @@ objects:
     labels:
       component: ${APP_NAME}
       app: coolstore
-      application: coolstore
   spec:
     replicas: 1
     selector:
@@ -151,7 +149,7 @@ objects:
     template:
       metadata:
         labels:
-          application: coolstore
+          app: coolstore
           component: ${APP_NAME}
           deploymentconfig: inventory-postgresql
         name: inventory-postgresql
@@ -197,7 +195,8 @@ objects:
         terminationGracePeriodSeconds: 60
         volumes:
         - name: inventory-postgresql-data
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: inventory-postgresql-pv
     triggers:
     - imageChangeParams:
         automatic: true
@@ -222,6 +221,19 @@ objects:
       targetPort: 5432
     selector:
       deploymentconfig: inventory-postgresql
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    labels:
+      app: coolstore
+      component: inventory
+    name: inventory-postgresql-pv
+  spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 1Gi
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:

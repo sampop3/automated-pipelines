@@ -9,7 +9,7 @@ objects:
   metadata:
     labels:
       app: coolstore
-      application: coolstore
+      app: ${APP_NAME}
       component: ${APP_NAME}
     name: ${APP_NAME}
   spec:
@@ -19,15 +19,10 @@ objects:
       targetPort: 8080
     selector:
       deploymentconfig: ${APP_NAME}
-    sessionAffinity: None
-    type: ClusterIP
-  status:
-    loadBalancer: {}
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
-      application: coolstore
       app: coolstore
       component: ${APP_NAME}
     name: ${APP_NAME}
@@ -36,9 +31,6 @@ objects:
     selector:
       deploymentconfig: ${APP_NAME}
     strategy:
-      activeDeadlineSeconds: 21600
-      recreateParams:
-        timeoutSeconds: 600
       resources: {}
       type: Recreate
     template:
@@ -103,6 +95,14 @@ objects:
         restartPolicy: Always
     test: false
     triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APP_NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${APP_NAME}:latest
+      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
@@ -116,26 +116,6 @@ objects:
       kind: Service
       name: ${APP_NAME}
       weight: 100
-    wildcardPolicy: None
-# Cart Route
-- apiVersion: v1
-  kind: Route
-  metadata:
-    annotations:
-      haproxy.router.openshift.io/balance: roundrobin
-    name: cart
-    labels:
-      application: coolstore
-      component: cart
-  spec:
-    alternateBackends:
-      - kind: Service
-        name: ${APP_NAME}
-        weight: 100
-    to:
-      kind: Service
-      name: cart-blue
-      weight: 0
     wildcardPolicy: None
 parameters:
 - description: BUILD_NAMESPACE
