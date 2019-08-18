@@ -57,14 +57,6 @@ objects:
               memory: 1Gi
     triggers:
     - imageChangeParams:
-        automatic: true
-        containerNames:
-        - coolstore-gw
-        from:
-          kind: ImageStreamTag
-          name: ${APP_NAME}:latest
-          namespace: openshift
-      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Service
