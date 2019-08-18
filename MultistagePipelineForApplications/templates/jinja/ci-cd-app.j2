@@ -18,7 +18,7 @@ app_detail:
 {%- for slave in jenkinslaves|sort()  %}
 {{ slave|replace("-", "_") }}:
   AGENT_NAME: "{{ slave }}"
-  IMAGE: "openshift/jenkins-{{ slave }}"
+  IMAGE: "docker-registry.default.svc:5000/openshift/jenkins-{{ slave }}"
   {%- raw %}
   NEXUS_SERVER: "{{ nexus.server }}"
   NEXUS_SECRET_NAME: "{{ nexus_secret.SECRET_NAME }}"
