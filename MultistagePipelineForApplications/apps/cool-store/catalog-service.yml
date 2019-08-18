@@ -18,7 +18,7 @@ acls:
   devgroup: Developers
 
 #images to use for runtime
-runtime_image: "redhat-openjdk18-openshift:1.5"
+runtime_image: "jboss-webserver31-tomcat8-openshift:1.0"
 runtime_image_project: openshift
 
 #template to used

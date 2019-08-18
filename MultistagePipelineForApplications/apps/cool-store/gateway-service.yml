@@ -18,7 +18,7 @@ acls:
   devgroup: Developers
 
 #images to use for runtime
-runtime_image: "jboss-eap72-openshift:latest"
+runtime_image: "fis-java-openshift:2.0"
 runtime_image_project: openshift
 
 #template to used
