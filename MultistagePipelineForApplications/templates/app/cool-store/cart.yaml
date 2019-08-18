@@ -96,13 +96,6 @@ objects:
     test: false
     triggers:
     - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${APP_NAME}
-        from:
-          kind: ImageStreamTag
-          name: ${APP_NAME}:latest
-      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
