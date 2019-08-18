@@ -95,7 +95,6 @@ objects:
         restartPolicy: Always
     test: false
     triggers:
-    - imageChangeParams:
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
