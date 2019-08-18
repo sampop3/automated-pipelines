@@ -71,7 +71,7 @@ objects:
           deploymentconfig: ${APP_NAME}
       spec:
         containers:
-        - image: docker-registry.default.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
+        - image: image-registry.openshift-image-registry.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
           imagePullPolicy: Always
           name: ${APP_NAME}
           ports:

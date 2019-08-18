@@ -59,7 +59,7 @@ objects:
             value: datagrid-hotrod
           - name: DATAGRID_PORT
             value: "11333"
-          image: docker-registry.default.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
+          image: image-registry.openshift-image-registry.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 5

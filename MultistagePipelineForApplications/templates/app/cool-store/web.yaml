@@ -36,7 +36,7 @@ objects:
             value: gw
           - name: HOSTNAME_HTTP
             value: ${APP_NAME}:8080
-          image: docker-registry.default.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
+          image: image-registry.openshift-image-registry.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
           imagePullPolicy: Always
           name: ${APP_NAME}
           ports:

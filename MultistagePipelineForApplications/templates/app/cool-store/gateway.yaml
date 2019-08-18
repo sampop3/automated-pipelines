@@ -35,7 +35,7 @@ objects:
                 fieldPath: metadata.namespace
           - name: DISABLE_CART_DISCOVERY
             value: "true"
-          image: docker-registry.default.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest 
+          image: image-registry.openshift-image-registry.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest 
           livenessProbe:
             httpGet:
               path: /health
