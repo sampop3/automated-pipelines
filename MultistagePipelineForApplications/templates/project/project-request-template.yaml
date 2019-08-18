@@ -18,7 +18,7 @@ objects:
     - default:
         memory: ${DEFAULT_MEM_LIMIT}
       defaultRequest:
-        cpu: 200m
+        cpu: 500m
         memory: ${DEFAULT_MEM_REQUEST}
       max:
         cpu: "2"
@@ -26,7 +26,7 @@ objects:
       maxLimitRequestRatio:
         cpu: "10"
       min:
-        cpu: 100m
+        cpu: 50m
         memory: 4Mi
       type: Container
 
@@ -91,7 +91,7 @@ parameters:
   value: "2Gi"
 - name: DEFAULT_MEM_LIMIT
   required: true
-  value: "1Gi"
+  value: "2Gi"
 - name: DEFAULT_MEM_REQUEST
   required: true
-  value: "250Mi"
+  value: "1Gi"
