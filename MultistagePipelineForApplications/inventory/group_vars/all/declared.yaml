@@ -21,8 +21,8 @@ edit_role_binding_group:
 ci_cd:
   NAMESPACE: "{{ projects.ci_cd_namespace }}"
   NAMESPACE_DISPLAY_NAME: "{{ projects.ci_cd_namespace }}" 
-  DEFAULT_MEM_LIMIT: "2Gi" 
-  DEFAULT_MEM_REQUEST: "1Gi"
+  DEFAULT_MEM_LIMIT: "4Gi" 
+  DEFAULT_MEM_REQUEST: "2Gi"
 
 jenkinslaves:
 - agent-nodejs
