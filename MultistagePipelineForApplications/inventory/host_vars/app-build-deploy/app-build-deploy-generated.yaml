@@ -1,0 +1,89 @@
+---
+
+build:
+  NAME: 'coolstore-gw'
+  RUNTIME_IMAGE_STREAM_NAME_TAG: 'java:8'
+  RUNTIME_IMAGE_STREAM_NAMESPACE: 'openshift'
+
+configmaps_default:
+  APP_NAME: "coolstore-gw"
+
+promote_default:
+  BUILD_NAMESPACE: "coolstore-dev"
+  APP_NAME: "coolstore-gw"
+
+
+
+
+promote2prod: |
+  {%- if deploy_test.env is defined and  deploy_prod.env  is iterable -%}
+  {{ promote_default | combine (deploy_prod.env, recursive=True) }}
+  {%- else -%}
+  {{ promote_default }}
+  {%- endif -%}
+  
+
+
+promote2test: |
+  {%- if deploy_test.env is defined and  deploy_test.env  is iterable -%}
+  {{ promote_default | combine (deploy_test.env, recursive=True) }}
+  {%- else -%}
+  {{ promote_default }}
+  {%- endif -%}
+  
+
+
+
+openshift_cluster_content:
+- object: app-components
+  content:
+    # create a binary build config in the devproject so that it can consume the artifacts created in 
+    # by the jenkins file step and create a container image out of it
+    - name: app-build
+      template:  "{{ inventory_dir }}/../templates/app/binaryBuildfromImagestreams.yaml" 
+      params_from_vars: "{{ build }}"
+      namespace: "coolstore-dev"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+
+
+
+
+    # Confimaps in the coolstore-prod space that for resolvconf and jwt tokens
+    - name: deploy-configmaps-on-coolstore-prod
+      template: "{{ inventory_dir }}/../templates/configmaps/prod.yaml"
+      params_from_vars:  "{{ configmaps_default }}"
+      namespace: "coolstore-prod"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+
+    # Deployconfig in the  coolstore-prod space that rolls out image from dev namespace.
+    - name: deploy-dc-on-coolstore-prod
+      template: "{{ inventory_dir }}/../templates/app/{{ deploy_prod.template }}"
+      params_from_vars: "{{promote2prod}}"
+      namespace: "coolstore-prod"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+
+
+    # Confimaps in the coolstore-test space that for resolvconf and jwt tokens
+    - name: deploy-configmaps-on-coolstore-test
+      template: "{{ inventory_dir }}/../templates/configmaps/test.yaml"
+      params_from_vars:  "{{ configmaps_default }}"
+      namespace: "coolstore-test"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+
+    # Deployconfig in the  coolstore-test space that rolls out image from dev namespace.
+    - name: deploy-dc-on-coolstore-test
+      template: "{{ inventory_dir }}/../templates/app/{{ deploy_test.template }}"
+      params_from_vars: "{{promote2test}}"
+      namespace: "coolstore-test"
+      ignore_unknown_parameters: false
+      tags:
+      - app
+

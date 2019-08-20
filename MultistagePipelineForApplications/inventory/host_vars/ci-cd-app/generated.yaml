@@ -1,0 +1,85 @@
+---
+# Details of parameters to be passed for Jenkinsfile to consumed in  ci_cd_namespace.
+app_detail:
+  NAME: "coolstore-gw"      
+  CI_CD_NAMESPACE: "coolstore-cicd"      
+  DEV_NAMESPACE: "coolstore-dev"      
+  PROD_NAMESPACE: "coolstore-prod"      
+  TEST_NAMESPACE: "coolstore-test"
+  JENKINSFILE_SOURCE_REPOSITORY_REF: "{{ scm_branch }}"
+  JENKINSFILE_SOURCE_REPOSITORY_URL: "{{ scm_url }}"
+  JENKINSFILE_SOURCE_SECRET: "{{ scm_secret_name }}"
+  JENKINSFILE_CONTEXT_DIR: "{{ jenkins_file_contextdir }}"
+  RUN_POLICY: Parallel
+  
+
+# Jenkins Slaves
+agent_maven:
+  AGENT_NAME: "agent-maven"
+  IMAGE: "image-registry.openshift-image-registry.svc:5000/openshift/jenkins-agent-maven"
+  NEXUS_SERVER: "{{ nexus.server }}"
+  NEXUS_SECRET_NAME: "{{ nexus_secret.SECRET_NAME }}"
+  
+agent_nodejs:
+  AGENT_NAME: "agent-nodejs"
+  IMAGE: "image-registry.openshift-image-registry.svc:5000/openshift/jenkins-agent-nodejs"
+  NEXUS_SERVER: "{{ nexus.server }}"
+  NEXUS_SECRET_NAME: "{{ nexus_secret.SECRET_NAME }}"
+  
+
+openshift_cluster_content:
+- object: ci-for-app
+  content:
+  # Create the secret using the encrypted private key to be able to checkout Jenkinsfile.
+  - name: ssh-private-key
+    template: "{{ inventory_dir }}/../templates/secret/secret-ssh-private-key-template.yaml"
+    params_from_vars:
+      SECRET_NAME: "{{ scm_secret_name }}"
+      SSH_PRIVATE_KEY: "{{ encrypted_gitea_key }}"  #read from encrypted-secrets.yaml (vault file)
+    namespace: "{{ projects.ci_cd_namespace }}"
+    tags:
+    - pipeline-ssh-private-key
+  
+    
+  # create nexux secret to be used by the slave
+  - name: nexus-secret
+    template: "{{ inventory_dir }}/../templates/secret/secret-user-pass-plaintext.yaml"
+    params_from_vars: "{{ nexus_secret }}"
+    namespace: "{{ projects.ci_cd_namespace }}"
+    tags:
+    - jenkins
+    - secret
+    - ci-cd-secrets
+  
+  # create the configmap for  agent-maven jenkins slave images
+  - name: agent-maven-configmap
+    template: "{{ inventory_dir }}/../templates/JenkinsSlave/slave-config-map-template.yaml"
+    params_from_vars: "{{agent_maven}}"
+    namespace: "coolstore-cicd"
+    tags:
+    - pipeline-jenkins agent-maven
+  
+  # create the configmap for  agent-nodejs jenkins slave images
+  - name: agent-nodejs-configmap
+    template: "{{ inventory_dir }}/../templates/JenkinsSlave/slave-config-map-template.yaml"
+    params_from_vars: "{{agent_nodejs}}"
+    namespace: "coolstore-cicd"
+    tags:
+    - pipeline-jenkins agent-nodejs
+  
+  # deploy the jenkins from out custom template
+  - name: jenkins-master
+    template: "{{ inventory_dir }}/../templates/jenkins/jenkins-generic.yaml"
+    params_from_vars: "{{ jenkins_master }}"
+    namespace: "{{ projects.ci_cd_namespace }}"
+    tags:
+    - ci
+
+  #Create the pipeline build config in the cicd namespace
+  - name: pipeline
+    template: "{{ inventory_dir }}/../templates/jenkinsPipeline/pipelinebc-template.yaml"
+    params_from_vars: "{{ app_detail }}"
+    namespace: "{{ projects.ci_cd_namespace }}"
+    tags:
+    - ci
+  

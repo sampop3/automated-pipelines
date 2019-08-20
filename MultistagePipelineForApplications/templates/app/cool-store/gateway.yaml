@@ -56,7 +56,6 @@ objects:
               cpu: 200m
               memory: 1Gi
     triggers:
-    - imageChangeParams:
     - type: ConfigChange
 - apiVersion: v1
   kind: Service

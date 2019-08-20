@@ -1,0 +1,16 @@
+---
+
+dev:
+  NAMESPACE: "coolstore-dev"
+  NAMESPACE_DISPLAY_NAME: "coolstore-dev"
+
+
+prod:
+  NAMESPACE: "coolstore-prod"
+  NAMESPACE_DISPLAY_NAME: "coolstore-prod"
+
+
+test:
+  NAMESPACE: "coolstore-test"
+  NAMESPACE_DISPLAY_NAME: "coolstore-test"
+
