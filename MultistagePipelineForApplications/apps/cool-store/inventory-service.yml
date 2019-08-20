@@ -1,7 +1,7 @@
 ---
 # App details 
 app_name: "inventory"
-scm_url: http://gitea-infra-tools.apps.cluster-390e.390e.sandbox389.opentlc.com/demouser01/inventory-service.git
+scm_url: http://gitea-infra-tools.apps.cluster-d327.d327.sandbox321.opentlc.com/demouser01/inventory-service.git
 scm_branch: master
 scm_secret_name: gitea
 jenkins_file_contextdir: "." 
@@ -18,7 +18,7 @@ acls:
   devgroup: Developers
 
 #images to use for runtime
-runtime_image: "jboss-eap70-openshift:1.5"
+runtime_image: "java:8"
 runtime_image_project: openshift
 
 #template to used

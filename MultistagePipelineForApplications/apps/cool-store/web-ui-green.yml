@@ -1,12 +1,12 @@
 ---
 # App details 
-app_name: "cart-blue"
-scm_url: http://gitea-infra-tools.apps.cluster-390e.390e.sandbox389.opentlc.com/demouser01/cart-service.git
+app_name: "web-ui-green"
+scm_url: http://gitea-infra-tools.apps.cluster-d327.d327.sandbox321.opentlc.com/demouser01/web-green-service.git
 scm_branch: master
 scm_secret_name: gitea
 jenkins_file_contextdir: "." 
 
-# no of environments to be created for app
+#no of environments to be created for app
 projects:
   ci_cd_namespace: coolstore-cicd
   dev_namespace:  coolstore-dev
@@ -18,12 +18,12 @@ acls:
   devgroup: Developers
 
 #images to use for runtime
-runtime_image: "redhat-openjdk18-openshift:1.1"
+runtime_image: "nodejs:4"
 runtime_image_project: openshift
 
 #template to used
 deploy_test:
-  template: cool-store/cart-blue.yaml
+  template: cool-store/web.yaml
 
 deploy_prod:
-  template: cool-store/cart-blue.yaml
+  template: cool-store/web.yaml

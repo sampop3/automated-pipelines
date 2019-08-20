@@ -1,7 +1,7 @@
 ---
 # App details 
-app_name: "web-ui"
-scm_url: http://gitea-infra-tools.apps.cluster-390e.390e.sandbox389.opentlc.com/demouser01/web-service.git
+app_name: "web-ui-blue"
+scm_url: http://gitea-infra-tools.apps.cluster-d327.d327.sandbox321.opentlc.com/demouser01/web-blue-service.git
 scm_branch: master
 scm_secret_name: gitea
 jenkins_file_contextdir: "." 
