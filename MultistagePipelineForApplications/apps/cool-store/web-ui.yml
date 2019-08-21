@@ -23,7 +23,7 @@ runtime_image_project: openshift
 
 #template to used
 deploy_test:
-  template: cool-store/web.yaml
+  template: cool-store/web-test.yaml
 
 deploy_prod:
-  template: cool-store/web.yaml
+  template: cool-store/web-prod.yaml
