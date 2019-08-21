@@ -5,17 +5,36 @@ metadata:
   name: ${APP_NAME}-template
 objects:
 - apiVersion: v1
-  kind: DeploymentConfig
+  kind: Service
   metadata:
-    name: ${APP_NAME}
     labels:
       app: coolstore
       application: coolstore
-      component: ${APP_NAME}
+      component: ${APP_NAME}-green
+    name: ${APP_NAME}-green
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: ${APP_NAME}-green
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APP_NAME}-green
+    labels:
+      app: coolstore
+      application: coolstore
+      component: ${APP_NAME}-green
   spec:
     replicas: 1
     selector:
-      deploymentconfig: ${APP_NAME}
+      deploymentconfig: ${APP_NAME}-green
     strategy:
       resources: {}
       type: Recreate
@@ -23,8 +42,8 @@ objects:
       metadata:
         labels:
           application: coolstore
-          component: ${APP_NAME}
-          deploymentconfig: ${APP_NAME}
+          component: ${APP_NAME}-green
+          deploymentconfig: ${APP_NAME}-green
       spec:
         containers:
         - env:
@@ -36,9 +55,9 @@ objects:
             value: gw
           - name: HOSTNAME_HTTP
             value: ${APP_NAME}:8080
-          image: image-registry.openshift-image-registry.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}:latest
+          image: ${APP_NAME}
           imagePullPolicy: Always
-          name: ${APP_NAME}
+          name: ${APP_NAME}-green
           ports:
           - containerPort: 8080
             protocol: TCP
@@ -77,32 +96,149 @@ objects:
     triggers:
     - type: ConfigChange
 - apiVersion: v1
-  kind: Service
-  metadata:
-    labels:
-      app: ${APP_NAME}
-      application: coolstore
-      component: ${APP_NAME}
-    name: ${APP_NAME}
-  spec:
-    ports:
-    - name: 8080-tcp
-      port: 8080
-      protocol: TCP
-      targetPort: 8080
-    selector:
-      deploymentconfig: ${APP_NAME}
-- apiVersion: v1
   kind: Route
   metadata:
-    name: ${APP_NAME}
     labels:
       application: coolstore
-      component: ${APP_NAME}
+      component: ${APP_NAME}-green
+    name: ${APP_NAME}-green
   spec:
     to:
       kind: Service
-      name: ${APP_NAME}
+      name: ${APP_NAME}-green
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      haproxy.router.openshift.io/balance: roundrobin
+    name: ${APP_NAME}
+    labels:
+      application: coolstore
+      component: ${APP_NAME}
+  spec:
+    alternateBackends:
+      - kind: Service
+        name: ${APP_NAME}-green
+        weight: 100
+    to:
+      kind: Service
+      name: ${APP_NAME}-blue
+      weight: 0
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: coolstore
+      application: coolstore
+      component: ${APP_NAME}-blue
+    name: ${APP_NAME}-blue
+  spec:
+    ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: ${APP_NAME}-blue
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APP_NAME}-blue
+    labels:
+      app: coolstore
+      application: coolstore
+      component: ${APP_NAME}-blue
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: ${APP_NAME}-blue
+    strategy:
+      resources: {}
+      type: Recreate
+    template:
+      metadata:
+        labels:
+          application: coolstore
+          component: ${APP_NAME}-blue
+          deploymentconfig: ${APP_NAME}-blue
+      spec:
+        containers:
+        - env:
+          - name: KUBERNETES_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: COOLSTORE_GW_SERVICE
+            value: gw
+          - name: HOSTNAME_HTTP
+            value: ${APP_NAME}:8080
+          image: ${APP_NAME}
+          imagePullPolicy: Always
+          name: ${APP_NAME}-blue
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 120
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 256Mi
+          terminationMessagePath: /dev/termination-log
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${APP_NAME}-blue
+        from:
+          kind: ImageStreamTag
+          name: ${APP_NAME}:latest-blue
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      application: coolstore
+      component: ${APP_NAME}-blue
+    name: ${APP_NAME}-blue
+  spec:
+    to:
+      kind: Service
+      name: ${APP_NAME}-blue
+      weight: 100
+    wildcardPolicy: None
 parameters:
 - description: BUILD_NAMESPACE
   displayName: BUILD_NAMESPACE
