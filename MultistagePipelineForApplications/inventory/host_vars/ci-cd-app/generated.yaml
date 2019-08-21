@@ -1,7 +1,7 @@
 ---
 # Details of parameters to be passed for Jenkinsfile to consumed in  ci_cd_namespace.
 app_detail:
-  NAME: "web-ui-green"      
+  NAME: "web-ui"      
   CI_CD_NAMESPACE: "coolstore-cicd"      
   DEV_NAMESPACE: "coolstore-dev"      
   PROD_NAMESPACE: "coolstore-prod"      

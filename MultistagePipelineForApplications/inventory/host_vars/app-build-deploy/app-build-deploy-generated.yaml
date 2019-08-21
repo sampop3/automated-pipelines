@@ -1,16 +1,16 @@
 ---
 
 build:
-  NAME: 'web-ui-green'
+  NAME: 'web-ui'
   RUNTIME_IMAGE_STREAM_NAME_TAG: 'nodejs:4'
   RUNTIME_IMAGE_STREAM_NAMESPACE: 'openshift'
 
 configmaps_default:
-  APP_NAME: "web-ui-green"
+  APP_NAME: "web-ui"
 
 promote_default:
   BUILD_NAMESPACE: "coolstore-dev"
-  APP_NAME: "web-ui-green"
+  APP_NAME: "web-ui"
 
 
 

@@ -94,6 +94,14 @@ objects:
         securityContext: {}
         terminationGracePeriodSeconds: 30
     triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - cart-green
+        from:
+          kind: ImageStreamTag
+          name: cart:latest-green
+      type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
