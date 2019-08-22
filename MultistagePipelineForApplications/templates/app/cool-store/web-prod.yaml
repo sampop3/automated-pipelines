@@ -95,6 +95,10 @@ objects:
         terminationGracePeriodSeconds: 30
     triggers:
     - type: ImageChange
+      imageChange:
+       from:
+        kind: "ImageStreamTag"
+        name: "web-ui:latest-green"
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
@@ -219,6 +223,10 @@ objects:
         terminationGracePeriodSeconds: 30
     triggers:
     - type: ImageChange
+      imageChange:
+       from:
+        kind: "ImageStreamTag"
+        name: "web-ui:latest-blue"
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
