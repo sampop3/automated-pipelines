@@ -45,4 +45,5 @@ echo "Pipeline created for application : $app"
 done
 
 oc policy add-role-to-user view system:serviceaccount:coolstore-test:default -n coolstore-test
+oc policy add-role-to-user view system:serviceaccount:coolstore-prod:default -n coolstore-prod
 

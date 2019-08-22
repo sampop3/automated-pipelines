@@ -1,16 +1,16 @@
 ---
 
 build:
-  NAME: 'web-ui'
-  RUNTIME_IMAGE_STREAM_NAME_TAG: 'nodejs:4'
+  NAME: 'cart'
+  RUNTIME_IMAGE_STREAM_NAME_TAG: 'java:8'
   RUNTIME_IMAGE_STREAM_NAMESPACE: 'openshift'
 
 configmaps_default:
-  APP_NAME: "web-ui"
+  APP_NAME: "cart"
 
 promote_default:
   BUILD_NAMESPACE: "coolstore-dev"
-  APP_NAME: "web-ui"
+  APP_NAME: "cart"
 
 
 
