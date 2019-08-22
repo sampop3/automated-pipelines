@@ -55,7 +55,7 @@ objects:
             value: gw
           - name: HOSTNAME_HTTP
             value: ${APP_NAME}:8080
-          image: ${APP_NAME}
+          image: image-registry.openshift-image-registry.svc:5000/coolstore-prod/web-ui:latest-green
           imagePullPolicy: Always
           name: ${APP_NAME}-green
           ports:
@@ -94,14 +94,7 @@ objects:
         securityContext: {}
         terminationGracePeriodSeconds: 30
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - cart-green
-        from:
-          kind: ImageStreamTag
-          name: cart:latest-green
-      type: ImageChange
+    - type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route
@@ -186,7 +179,7 @@ objects:
             value: gw
           - name: HOSTNAME_HTTP
             value: ${APP_NAME}:8080
-          image: ${APP_NAME}
+          image: image-registry.openshift-image-registry.svc:5000/coolstore-prod/${APP_NAME}:latest-blue
           imagePullPolicy: Always
           name: ${APP_NAME}-blue
           ports:
@@ -225,14 +218,7 @@ objects:
         securityContext: {}
         terminationGracePeriodSeconds: 30
     triggers:
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${APP_NAME}-blue
-        from:
-          kind: ImageStreamTag
-          name: ${APP_NAME}:latest-blue
-      type: ImageChange
+    - type: ImageChange
     - type: ConfigChange
 - apiVersion: v1
   kind: Route

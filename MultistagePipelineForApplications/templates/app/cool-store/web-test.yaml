@@ -55,7 +55,7 @@ objects:
             value: gw
           - name: HOSTNAME_HTTP
             value: ${APP_NAME}:8080
-          image: ${APP_NAME}
+          image: image-registry.openshift-image-registry.svc:5000/${BUILD_NAMESPACE}/${APP_NAME}
           imagePullPolicy: Always
           name: ${APP_NAME}
           ports:
